@@ -1,0 +1,40 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "SimpleWatch",
+			"path": "examples\\LVGL\\SimpleWatch"
+		},
+		{
+			"name": "LilyGoGui",
+			"path": "examples\\LVGL\\LilyGoGui"
+		},
+		{
+			"path": "examples\\BasicUnit\\TouchPad"
+		},
+		{
+			"path": "examples\\BasicUnit\\PlayMP3FromPROGMEM"
+		},
+		{
+			"path": "..\\..\\PlayMODFromPROGMEM"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"chrono": "c",
+			"condition_variable": "c",
+			"ctime": "c",
+			"iomanip": "c",
+			"mutex": "c",
+			"shared_mutex": "c",
+			"thread": "c",
+			"xhash": "c",
+			"xlocale": "c",
+			"xlocinfo": "c",
+			"xloctime": "c",
+			"xtree": "c"
+		}
+	}
+}
