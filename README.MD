@@ -11,19 +11,10 @@
 - About API, please check the source code
 - Example [description](docs/examples_en.md)
 - The latest factory firmware is made by [sharandac/My-TTGO-Watch](https://github.com/sharandac/My-TTGO-Watch)
-
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen1.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen2.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen3.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen4.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen5.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen6.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen7.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen8.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen9.png)
-![screenshot](https://github.com/sharandac/My-TTGO-Watch/blob/master/images/screen10.png)
-
-
+- In examples/LVGL/SimpleWatch of branch "hrg", you can find an animated Mickey Mouse watch.
+  It is localized to German/Switzerland and does synchronize time from internet using NTP.
+  Here is a screenshot:
+![screenshot](images/screen1.png)
 
 <h2 align = "left">🚀 Characteristics</h2>
 
