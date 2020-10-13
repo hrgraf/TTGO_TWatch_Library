@@ -13,7 +13,7 @@ Written by Lewis he //https://github.com/lewisxhe
 
 #pragma once
 
-// #define LILYGO_DEBUG Serial
+#define LILYGO_DEBUG Serial
 
 #ifdef LILYGO_DEBUG
 #define DBGX(...)        LILYGO_DEBUG.printf(__VA_ARGS__)
@@ -21,11 +21,13 @@ Written by Lewis he //https://github.com/lewisxhe
 #define DBGX(...)
 #endif
 
+//extern "C" bool run_audio(void);
+
 #include <SPI.h>
 
-#ifdef LILYGO_WATCH_LVGL
-#include <Ticker.h>
-#endif
+//#ifdef LILYGO_WATCH_LVGL
+//#include <Ticker.h>
+//#endif
 
 #ifdef LILYGO_WATCH_HAS_SDCARD
 #include <FS.h>
@@ -412,28 +414,36 @@ public:
         if (tft == nullptr) {
             return false;
         }
+
+#if     (defined(LILYGO_BLOCK_ST7796S_MODULE)  || defined(LILYGO_BLOCK_ILI9488_MODULE)) && defined(LILYGO_WATCH_BLOCK)
+        const uint32_t num_pixel = 320 * 240;
+#else
+        const uint32_t num_pixel = 240 * 237; // 240 does not fit in largest chunk!!
+#endif
+
+#ifdef TWATCH_USE_PSRAM_ALLOC_LVGL
+        lv_color_t *buf1 = (lv_color_t *)heap_caps_calloc(num_pixel, sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (!buf1) {
+            DBGX("spiram alloc failed\n");
+            heap_caps_print_heap_info(MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+            return false;
+        }
+#else
+        //static lv_color_t buf1[num_pixel];
+        lv_color_t *buf1 = (lv_color_t *)heap_caps_calloc(num_pixel, sizeof(lv_color_t), MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
+        if (!buf1) {
+            DBGX("dma alloc failed\n");
+            heap_caps_print_heap_info(MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
+            return false;
+        }
+#endif  /*TWATCH_USE_PSRAM_ALLOC_LVGL*/
+
         lv_init();
         lv_indev_drv_t indev_drv;
         lv_disp_drv_init(&disp_drv);
         static lv_disp_buf_t disp_buf;
 
-#if     (defined(LILYGO_BLOCK_ST7796S_MODULE)  || defined(LILYGO_BLOCK_ILI9488_MODULE)) && defined(LILYGO_WATCH_BLOCK)
-        const uint16_t buffer_size = 320 * 100;
-#else
-        const uint16_t buffer_size = 240 * 100;
-#endif
-
-#ifdef TWATCH_USE_PSRAM_ALLOC_LVGL
-        lv_color_t *buf1 = (lv_color_t *)heap_caps_calloc(buffer_size, sizeof(lv_color_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT );
-        if (!buf1) {
-            DBGX("alloc failed\n");
-            return false;
-        }
-#else
-        static lv_color_t buf1[buffer_size];
-#endif  /*TWATCH_USE_PSRAM_ALLOC_LVGL*/
-
-        lv_disp_buf_init(&disp_buf, buf1, NULL, buffer_size);
+        lv_disp_buf_init(&disp_buf, buf1, NULL, num_pixel);
         disp_drv.hor_res = tft->width();
         disp_drv.ver_res = tft->height();
         disp_drv.flush_cb = disp_flush;
@@ -449,21 +459,21 @@ public:
         lv_indev_drv_register(&indev_drv);
 #endif  /*LILYGO_WATCH_HAS_TOUCH*/
 
-        tickTicker = new Ticker();
-        startLvglTick();
+//      tickTicker = new Ticker();
+//      startLvglTick();
         return true;
     }
 
     void startLvglTick()
     {
-        tickTicker->attach_ms(5, []() {
-            lv_tick_inc(5);
-        });
+//      tickTicker->attach_ms(5, []() {
+//          lv_tick_inc(5);
+//      });
     }
 
     void stopLvglTick()
     {
-        tickTicker->detach();
+//      tickTicker->detach();
     }
 
 #endif  /*LILYGO_WATCH_LVGL*/
@@ -971,9 +981,9 @@ private:
 
     static TTGOClass *_ttgo;
 
-#if  defined(LILYGO_WATCH_LVGL)
-    Ticker *tickTicker = nullptr;
-#endif  /*LILYGO_WATCH_LVGL*/
+//#if  defined(LILYGO_WATCH_LVGL)
+//    Ticker *tickTicker = nullptr;
+//#endif  /*LILYGO_WATCH_LVGL*/
 
 public: /*Compatible with MY-TTGO-TWATCH https://github.com/sharandac/My-TTGO-Watch*/
 #ifdef LILYGO_WATCH_HAS_TOUCH
@@ -1094,6 +1104,7 @@ protected:
 #if defined(LILYGO_WATCH_LVGL) && defined(LILYGO_WATCH_HAS_TOUCH)
     static bool touchpad_read(lv_indev_drv_t *indev_drv, lv_indev_data_t *data)
     {
+        //run_audio();
         data->state = _ttgo->getTouchXY(data->point.x, data->point.y) ?  LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
         return false; /*Return false because no moare to be read*/
     }

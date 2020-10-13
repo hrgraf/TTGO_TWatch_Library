@@ -207,7 +207,8 @@ bool lv_img_get_antialias(lv_obj_t * img);
  **********************/
 
 /*Use this macro to declare an image in a c file*/
-#define LV_IMG_DECLARE(var_name) extern const lv_img_dsc_t var_name;
+//#define LV_IMG_DECLARE(var_name) extern const lv_img_dsc_t var_name;
+#define LV_IMG_DECLARE(var_name) const lv_img_dsc_t var_name;
 
 #endif /*LV_USE_IMG*/
 

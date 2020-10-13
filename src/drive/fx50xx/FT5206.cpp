@@ -72,13 +72,22 @@ void FT5206_Class::adjustTheshold(uint8_t thresh)
 TP_Point FT5206_Class::getPoint(uint8_t num)
 {
     if (!_init) return TP_Point(0, 0);
-    _readRegister();
+    if (!num)
+        _readRegister();
     if ((_touches == 0) || (num > 1)) {
         return TP_Point(0, 0);
     } else {
         return TP_Point(_x[num], _y[num]);
     }
 }
+
+// uint8_t FT5206_Class::gesture()
+// {
+//     if (!_init)return 0;
+//     uint8_t val = 0;
+//     _readByte(FT5206_GESTURE_REG, 1, &val);
+//     return val;
+// }
 
 uint8_t FT5206_Class::touched()
 {
@@ -105,6 +114,7 @@ void FT5206_Class::enterMonitorMode()
 void FT5206_Class::_readRegister()
 {
     _readByte(DEVIDE_MODE, 16, _data);
+    _gesture = _data[TD_GESTURE];
     _touches = _data[TD_STATUS];
     if ((_touches > 2) || (_touches == 0)) {
         _touches = 0;

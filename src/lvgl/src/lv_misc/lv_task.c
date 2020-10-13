@@ -17,10 +17,12 @@
     #include LV_GC_INCLUDE
 #endif /* LV_ENABLE_GC */
 
+//extern bool run_audio(void);
+
 /*********************
  *      DEFINES
  *********************/
-#define IDLE_MEAS_PERIOD 500 /*[ms]*/
+#define IDLE_MEAS_PERIOD 1000 /*[ms]*/
 #define DEF_PRIO LV_TASK_PRIO_MID
 #define DEF_PERIOD 500
 
@@ -102,6 +104,8 @@ LV_ATTRIBUTE_TASK_HANDLER uint32_t lv_task_handler(void)
         task_created             = false;
         LV_GC_ROOT(_lv_task_act) = _lv_ll_get_head(&LV_GC_ROOT(_lv_task_ll));
         while(LV_GC_ROOT(_lv_task_act)) {
+            //run_audio();
+
             /* The task might be deleted if it runs only once ('once = 1')
              * So get next element until the current is surely valid*/
             next = _lv_ll_get_next(&LV_GC_ROOT(_lv_task_ll), LV_GC_ROOT(_lv_task_act));

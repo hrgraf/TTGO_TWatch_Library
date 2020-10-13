@@ -493,6 +493,8 @@ void lv_obj_clean(lv_obj_t * obj)
     }
 }
 
+// is_visible feature added from master branch, by HRG
+
 /**
  * Mark an area of an object as invalid.
  * This area will be redrawn by 'lv_refr_task'
@@ -503,43 +505,11 @@ void lv_obj_invalidate_area(const lv_obj_t * obj, const lv_area_t * area)
 {
     LV_ASSERT_OBJ(obj, LV_OBJX_NAME);
 
-    if(lv_obj_get_hidden(obj)) return;
+    lv_area_t area_tmp;
+    lv_area_copy(&area_tmp, area);
+    bool visible = lv_obj_area_is_visible(obj, &area_tmp);
 
-    /*Invalidate the object only if it belongs to the curent or previous'*/
-    lv_obj_t * obj_scr = lv_obj_get_screen(obj);
-    lv_disp_t * disp   = lv_obj_get_disp(obj_scr);
-    if(obj_scr == lv_disp_get_scr_act(disp) ||
-       obj_scr == lv_disp_get_scr_prev(disp) ||
-       obj_scr == lv_disp_get_layer_top(disp) ||
-       obj_scr == lv_disp_get_layer_sys(disp)) {
-
-        /*Truncate the area to the object*/
-        lv_area_t obj_coords;
-        lv_coord_t ext_size = obj->ext_draw_pad;
-        lv_area_copy(&obj_coords, &obj->coords);
-        obj_coords.x1 -= ext_size;
-        obj_coords.y1 -= ext_size;
-        obj_coords.x2 += ext_size;
-        obj_coords.y2 += ext_size;
-
-        bool is_common;
-        lv_area_t area_trunc;
-
-        is_common = _lv_area_intersect(&area_trunc, area, &obj_coords);
-        if(is_common == false) return;  /*The area is not on the object*/
-
-        /*Truncate recursively to the parents*/
-        lv_obj_t * par = lv_obj_get_parent(obj);
-        while(par != NULL) {
-            is_common = _lv_area_intersect(&area_trunc, &area_trunc, &par->coords);
-            if(is_common == false) break;       /*If no common parts with parent break;*/
-            if(lv_obj_get_hidden(par)) return; /*If the parent is hidden then the child is hidden and won't be drawn*/
-
-            par = lv_obj_get_parent(par);
-        }
-
-        if(is_common) _lv_inv_area(disp, &area_trunc);
-    }
+    if(visible) _lv_inv_area(lv_obj_get_disp(obj), &area_tmp);
 }
 
 /**
@@ -562,6 +532,74 @@ void lv_obj_invalidate(const lv_obj_t * obj)
     lv_obj_invalidate_area(obj, &obj_coords);
 
 }
+
+/**
+ * Tell whether an area of an object is visible (even partially) now or not
+ * @param obj pointer to an object
+ * @param area the are to check. The visible part of the area will be written back here.
+ * @return true: visible; false: not visible (hidden, out of parent, on other screen, etc)
+ */
+bool lv_obj_area_is_visible(const lv_obj_t * obj, lv_area_t * area)
+{
+    if(lv_obj_get_hidden(obj)) return false;
+
+    /*Invalidate the object only if it belongs to the curent or previous'*/
+    lv_obj_t * obj_scr = lv_obj_get_screen(obj);
+    lv_disp_t * disp   = lv_obj_get_disp(obj_scr);
+    if(obj_scr == lv_disp_get_scr_act(disp) ||
+       obj_scr == lv_disp_get_scr_prev(disp) ||
+       obj_scr == lv_disp_get_layer_top(disp) ||
+       obj_scr == lv_disp_get_layer_sys(disp)) {
+
+        /*Truncate the area to the object*/
+        lv_area_t obj_coords;
+        lv_coord_t ext_size = obj->ext_draw_pad;
+        lv_area_copy(&obj_coords, &obj->coords);
+        obj_coords.x1 -= ext_size;
+        obj_coords.y1 -= ext_size;
+        obj_coords.x2 += ext_size;
+        obj_coords.y2 += ext_size;
+
+        bool is_common;
+
+        is_common = _lv_area_intersect(area, area, &obj_coords);
+        if(is_common == false) return false;  /*The area is not on the object*/
+
+        /*Truncate recursively to the parents*/
+        lv_obj_t * par = lv_obj_get_parent(obj);
+        while(par != NULL) {
+            is_common = _lv_area_intersect(area, area, &par->coords);
+            if(is_common == false) return false;       /*If no common parts with parent break;*/
+            if(lv_obj_get_hidden(par)) return false; /*If the parent is hidden then the child is hidden and won't be drawn*/
+
+            par = lv_obj_get_parent(par);
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Tell whether an object is visible (even partially) now or not
+ * @param obj pointer to an object
+ * @return true: visible; false: not visible (hidden, out of parent, on other screen, etc)
+ */
+bool lv_obj_is_visible(const lv_obj_t * obj)
+{
+    LV_ASSERT_OBJ(obj, LV_OBJX_NAME);
+
+    lv_area_t obj_coords;
+    lv_coord_t ext_size = obj->ext_draw_pad;
+    lv_area_copy(&obj_coords, &obj->coords);
+    obj_coords.x1 -= ext_size;
+    obj_coords.y1 -= ext_size;
+    obj_coords.x2 += ext_size;
+    obj_coords.y2 += ext_size;
+
+    return lv_obj_area_is_visible(obj, &obj_coords);
+
+}
+
 /*=====================
  * Setter functions
  *====================*/

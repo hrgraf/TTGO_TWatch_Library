@@ -34,6 +34,7 @@ github:https://github.com/lewisxhe/FT5206_Library
 
 #define FT5206_SLAVE_ADDRESS    (0x38)
 #define FT5206_MODE_REG         (0x00)
+#define FT5206_GESTURE_REG      (0x01)
 #define FT5206_TOUCHES_REG      (0x02)
 #define FT5206_VENDID_REG       (0xA8)
 #define FT5206_CHIPID_REG       (0xA3)
@@ -51,6 +52,7 @@ github:https://github.com/lewisxhe/FT5206_Library
 #define FT5206U_CHIPID          0x64
 
 #define DEVIDE_MODE 0x00
+#define TD_GESTURE  0x01
 #define TD_STATUS   0x02
 #define TOUCH1_XH   0x03
 #define TOUCH1_XL   0x04
@@ -62,6 +64,14 @@ github:https://github.com/lewisxhe/FT5206_Library
 
 #define CST026_VENDID           0x26
 #define FT5X0X_VENDID           0X56
+
+// gesture IDs
+#define GESTURE_MOVE_UP          0x10
+#define GESTURE_MOVE_RIGHT       0x14
+#define GESTURE_MOVE_DOWN        0x18
+#define GESTURE_MOVE_LEFT        0x1C
+#define GESTURE_ZOOM_IN          0x48
+#define GESTURE_ZOOM_OUT         0x49
 
 
 
@@ -98,6 +108,7 @@ public:
     // TP_Point getPoint(uint8_t num, uint8_t rotation );
     TP_Point getPoint(uint8_t num = 0);
 
+    uint8_t gesture() { return _gesture; };
     uint8_t touched();
     void enterSleepMode();
     void enterMonitorMode();
@@ -140,6 +151,7 @@ private:
     uint16_t _y[2];
     uint16_t _id[2];
     uint8_t _touches = 0;
+    uint8_t _gesture = 0;
     bool _init = false;
     TwoWire *_i2cPort;
 };

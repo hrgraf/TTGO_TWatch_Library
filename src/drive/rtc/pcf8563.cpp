@@ -41,11 +41,13 @@ void PCF8563_Class::check()
     RTC_Date now = getDateTime();
     RTC_Date compiled = RTC_Date(__DATE__, __TIME__);
 
-    // Serial.printf("%d:%d:%d - %d:%d:%d\n", compiled.year, compiled.month, compiled.day, compiled.hour, compiled.minute, compiled.second);
+    Serial.printf("Compiled  %04d/%02d/%02d - %02d:%02d:%02d\n", compiled.year, compiled.month, compiled.day, compiled.hour, compiled.minute, compiled.second);
+    Serial.printf("Now       %04d/%02d/%02d - %02d:%02d:%02d\n", now.year, now.month, now.day, now.hour, now.minute, now.second);
 
     if (now.year < compiled.year ||
             (now.year == compiled.year && now.month < compiled.month ) ||
             (now.year == compiled.year && now.month == compiled.month && now.day < compiled.day)) {
+        Serial.println("Use compiled date and time");
         setDateTime(compiled);
         log_i("reset rtc date time");
     }
@@ -326,21 +328,21 @@ const char *PCF8563_Class::formatDateTime(uint8_t sytle)
 
 void PCF8563_Class::syncToSystem()
 {
-    struct tm t_tm;
+    struct tm info;
     struct timeval val;
     RTC_Date dt = getDateTime();
     // log_i("syncToSystem: %d %d %d - %d %d %d \n",  dt.year, dt.month, dt.day,  dt.hour, dt.minute, dt.second);
-    t_tm.tm_hour = dt.hour;
-    t_tm.tm_min = dt.minute;
-    t_tm.tm_sec = dt.second;
-    t_tm.tm_year = dt.year - 1900;    //Year, whose value starts from 1900
-    t_tm.tm_mon = dt.month - 1;       //Month (starting from January, 0 for January) - Value range is [0,11]
-    t_tm.tm_mday = dt.day;
-    val.tv_sec = mktime(&t_tm);
+    info.tm_hour = dt.hour;
+    info.tm_min  = dt.minute;
+    info.tm_sec  = dt.second;
+    info.tm_year = dt.year - 1900;    //Year, whose value starts from 1900
+    info.tm_mon  = dt.month - 1;       //Month (starting from January, 0 for January) - Value range is [0,11]
+    info.tm_mday = dt.day;
+    val.tv_sec = mktime(&info);
     val.tv_usec = 0;
 
     settimeofday(&val, NULL);
-    // log_i("syncToSystem: %d %d %d - %d %d %d \n", t_tm.tm_year, t_tm.tm_mon + 1, t_tm.tm_mday, t_tm.tm_hour, t_tm.tm_min, t_tm.tm_sec);
+    Serial.printf("syncToSystem: %d %d %d - %d %d %d \n", info.tm_year+1900, info.tm_mon+1, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec);
 }
 
 void PCF8563_Class::syncToRtc()
@@ -350,7 +352,7 @@ void PCF8563_Class::syncToRtc()
     time(&now);
     localtime_r(&now, &info);
     setDateTime(info.tm_year, info.tm_mon + 1, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec);
-    // Serial.printf("syncToRtc: %d %d %d - %d %d %d \n", info.tm_year, info.tm_mon + 1, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec);
+    Serial.printf("syncToRtc: %d %d %d - %d %d %d \n", info.tm_year+1900, info.tm_mon+1, info.tm_mday, info.tm_hour, info.tm_min, info.tm_sec);
 }
 
 RTC_Date::RTC_Date(
