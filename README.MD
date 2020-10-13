@@ -14,6 +14,7 @@
 - In examples/LVGL/SimpleWatch of branch "hrg", you can find an animated Mickey Mouse watch.
   It is localized to German/Switzerland and does synchronize time from internet using NTP.
   Here is a screenshot:
+  
 ![screenshot](images/screen1.png)
 
 <h2 align = "left">🚀 Characteristics</h2>
